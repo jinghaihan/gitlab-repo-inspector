@@ -17,8 +17,8 @@ export interface CommandOptions {
   cwd?: string
   registry?: string
   apiVersion?: string
-  token?: string
   projectType?: ProjectType
+  token?: string
   group?: string
   subgroups?: boolean
   monorepo?: boolean
