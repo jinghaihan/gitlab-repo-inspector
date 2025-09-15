@@ -4,7 +4,7 @@ import c from 'ansis'
 import { parse } from 'yaml'
 import { createPackageFilter, createPatternFilter } from '../filter'
 import { getRepoTree, readRepoFile } from '../gitlab'
-import { normalizeRepo, normalizeTag } from '../utils'
+import { normalizeRepo, normalizeVersion } from '../utils'
 
 export async function inspectPnpmMonorepo(spinner: Spinner, options: ConfigOptions, repo: GitlabRepo, tag?: string): Promise<InspectResult[] | undefined> {
   spinner.message(`Reading ${c.yellow`${repo.name}`} pnpm-workspace.yaml...`)
@@ -19,6 +19,8 @@ export async function inspectPnpmMonorepo(spinner: Spinner, options: ConfigOptio
   const packages = patternFilter(parsed.packages)
 
   const pkgs: InspectResult[] = []
+  let hasSub = false
+
   const readPackage = async (dir: string) => {
     if (dir)
       spinner.message(`Reading package.json in ${c.yellow`${dir}`}...`)
@@ -33,13 +35,18 @@ export async function inspectPnpmMonorepo(spinner: Spinner, options: ConfigOptio
       if (data.private === true)
         return
 
+      hasSub = true
       pkgs.push({
         name: data.name,
         repo: normalizeRepo(`${repo.web_url}/${dir}`),
+        repoId: repo.id,
+        webUrl: repo.web_url,
         projectType: 'pnpm',
         description: data.description,
-        tag: normalizeTag(tag),
+        tag,
+        version: normalizeVersion(tag),
       })
+      return true
     }
     catch (error) {
       p.log.error(`Failed to read package.json for ${path}`)
@@ -50,10 +57,6 @@ export async function inspectPnpmMonorepo(spinner: Spinner, options: ConfigOptio
   if (!packages.length) {
     await readPackage('')
     return pkgs
-  }
-
-  if (parsed.packages.includes('.')) {
-    await readPackage('')
   }
 
   for (const pattern of packages) {
@@ -82,6 +85,10 @@ export async function inspectPnpmMonorepo(spinner: Spinner, options: ConfigOptio
       console.error(error)
       continue
     }
+  }
+
+  if (!hasSub || parsed.packages.includes('.')) {
+    await readPackage('')
   }
 
   return packageFilter(pkgs)

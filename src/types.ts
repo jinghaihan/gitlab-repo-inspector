@@ -19,8 +19,10 @@ export interface CommandOptions {
   apiVersion?: string
   projectType?: ProjectType
   token?: string
+  perPage?: number
   group?: string
   subgroups?: boolean
+  archived?: boolean
   monorepo?: boolean
   preRelease?: boolean
   ignoreGroups?: string[]
@@ -44,6 +46,8 @@ export interface GitlabRepo {
   id: number
   name: string
   path: string
+  archived: boolean
+  visibility: 'public' | 'internal' | 'private'
   description?: string
   web_url: string
   namespace: {
@@ -79,7 +83,9 @@ export interface InspectResult {
   name: string
   repo: string
   repoId: number
+  webUrl: string
   projectType?: ProjectType
   description?: string
   tag?: string
+  version?: string
 }

@@ -18,10 +18,9 @@ export async function retry<T>(fn: () => Promise<T>, maxAttempts: number = 10, d
   }
 }
 
-export function normalizeTag(tag?: string) {
+export function normalizeVersion(tag?: string) {
   if (!tag)
     return
-
   return tag.replace(/^v/, '')
 }
 

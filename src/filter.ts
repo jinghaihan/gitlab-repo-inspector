@@ -5,6 +5,7 @@ export function createRepoFilter(options: ConfigOptions) {
   return (data: GitlabRepo[]) => data
     .filter(i => !options.ignoreRepos?.includes(i.path))
     .filter(i => !options.ignoreGroups?.includes(i.namespace.name))
+    .filter(i => options.archived ? true : !i.archived)
 }
 
 export function createPreReleaseFilter(options: ConfigOptions) {

@@ -34,21 +34,6 @@ The tool automatically detects and analyzes monorepo structures:
 - Recursively analyzes nested modules
 - Extracts artifact information and descriptions
 
-### Output Format
-The tool generates a `gitlab-repo-inspector.json` file with the following structure:
-
-```json
-[
-  {
-    "name": "repository-name",
-    "repo": "https://gitlab.com/group/repository",
-    "projectType": "pnpm",
-    "description": "Repository description",
-    "tag": "v1.0.0"
-  }
-]
-```
-
 ## Configuration
 
 Create a `gitlab-repo-inspector.config.ts` file to customize default settings:

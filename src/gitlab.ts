@@ -1,4 +1,10 @@
-import type { ConfigOptions, GitlabGroup, GitlabRepo, GitlabRepoTag, GitlabRepoTree } from './types'
+import type {
+  ConfigOptions,
+  GitlabGroup,
+  GitlabRepo,
+  GitlabRepoTag,
+  GitlabRepoTree,
+} from './types'
 import process from 'node:process'
 import * as p from '@clack/prompts'
 import axios from 'axios'
@@ -6,14 +12,14 @@ import { createPreReleaseFilter, createRepoFilter } from './filter'
 import { baseURL, retry } from './utils'
 
 export async function getGroups(options: ConfigOptions): Promise<GitlabGroup | undefined> {
-  const { token, group, subgroups } = options
+  const { token, group } = options
+
   return await retry(async () => {
     const { data } = await axios.get<GitlabGroup[]>(
       `${baseURL(options)}/groups`,
       {
         params: {
           search: group,
-          with_projects: subgroups,
         },
         headers: {
           'PRIVATE-TOKEN': token,
@@ -21,8 +27,8 @@ export async function getGroups(options: ConfigOptions): Promise<GitlabGroup | u
       },
     )
 
-    const i = data.find(i => i.name === group)
-    if (!i && data.length) {
+    const item = data.find(i => i.name === group)
+    if (!item && data.length) {
       p.log.error(`Group ${group} not found`)
       const result = await p.select({
         message: `Group ${group} not found, select one of the following groups`,
@@ -37,25 +43,25 @@ export async function getGroups(options: ConfigOptions): Promise<GitlabGroup | u
       }
       return result
     }
-    return i
+    return item
   })
 }
 
 export async function getRepos(options: ConfigOptions): Promise<GitlabRepo[]> {
-  const { token, subgroups } = options
+  const { token, subgroups, perPage } = options
   const gitlabGroup = await getGroups(options)
   if (!gitlabGroup) {
     return []
   }
-
   const filter = createRepoFilter(options)
+
   return await retry(async () => {
     const { data } = await axios.get<GitlabRepo[]>(
       `${baseURL(options)}/groups/${gitlabGroup.id}/projects`,
       {
         params: {
           include_subgroups: subgroups,
-          per_page: 500,
+          per_page: perPage,
         },
         headers: {
           'PRIVATE-TOKEN': token,
@@ -69,6 +75,7 @@ export async function getRepos(options: ConfigOptions): Promise<GitlabRepo[]> {
 export async function getRepoTags(options: ConfigOptions, repo: Pick<GitlabRepo, 'id'>) {
   const { token } = options
   const filter = createPreReleaseFilter(options)
+
   return await retry(async () => {
     const { data } = await axios.get<GitlabRepoTag[]>(
       `${baseURL(options)}/projects/${repo.id}/repository/tags`,
@@ -85,7 +92,7 @@ export async function getRepoTags(options: ConfigOptions, repo: Pick<GitlabRepo,
   }) ?? []
 }
 
-export async function readRepoFile(options: ConfigOptions, repo: GitlabRepo, path: string, tag?: string) {
+export async function readRepoFile(options: ConfigOptions, repo: Pick<GitlabRepo, 'id'>, path: string, tag?: string) {
   const { token } = options
 
   return await retry(async () => {
@@ -104,8 +111,8 @@ export async function readRepoFile(options: ConfigOptions, repo: GitlabRepo, pat
   })
 }
 
-export async function getRepoTree(options: ConfigOptions, repo: GitlabRepo, path: string = '', tagOrBranch?: string) {
-  const { token } = options
+export async function getRepoTree(options: ConfigOptions, repo: Pick<GitlabRepo, 'id'>, path: string = '', tagOrBranch?: string) {
+  const { token, perPage } = options
 
   return await retry(async () => {
     const { data } = await axios.get<GitlabRepoTree[]>(
@@ -114,7 +121,7 @@ export async function getRepoTree(options: ConfigOptions, repo: GitlabRepo, path
         params: {
           path,
           ref: tagOrBranch,
-          per_page: 500,
+          per_page: perPage,
         },
         headers: {
           'PRIVATE-TOKEN': token,

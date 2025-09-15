@@ -3,7 +3,7 @@ import process from 'node:process'
 import * as p from '@clack/prompts'
 import c from 'ansis'
 import { getRepos, getRepoTags } from '../gitlab'
-import { getLatestTag, normalizeRepo, normalizeTag } from '../utils'
+import { getLatestTag, normalizeRepo, normalizeVersion } from '../utils'
 import { inspectMavenMonorepo } from './maven'
 import { inspectPnpmMonorepo } from './pnpm'
 
@@ -58,8 +58,10 @@ export async function inspectRepo(options: ConfigOptions, repo: GitlabRepo) {
       name: repo.name,
       repo: normalizeRepo(repo.web_url),
       repoId: repo.id,
+      webUrl: repo.web_url,
       description: repo.description ?? '',
-      tag: normalizeTag(latestTag?.name),
+      tag: latestTag?.name,
+      version: normalizeVersion(latestTag?.name),
     })
   }
 

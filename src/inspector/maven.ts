@@ -4,7 +4,7 @@ import c from 'ansis'
 import { XMLParser } from 'fast-xml-parser'
 import { createPackageFilter } from '../filter'
 import { readRepoFile } from '../gitlab'
-import { normalizeRepo, normalizeTag } from '../utils'
+import { normalizeRepo, normalizeVersion } from '../utils'
 
 const parser = new XMLParser()
 
@@ -56,9 +56,12 @@ export async function inspectMavenMonorepo(spinner: Spinner, options: ConfigOpti
       pkgs.push({
         name: project.artifactId,
         repo: normalizeRepo(`${repo.web_url}/${dir}`),
+        repoId: repo.id,
+        webUrl: repo.web_url,
         projectType: 'maven',
         description: project.description || project.name,
-        tag: normalizeTag(tag),
+        tag,
+        version: normalizeVersion(tag),
       })
     }
     catch (error) {
