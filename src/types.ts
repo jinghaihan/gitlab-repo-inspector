@@ -81,9 +81,9 @@ export interface GitlabRepoTree {
 
 export interface InspectResult {
   name: string
-  repo: string
-  repoId: number
-  webUrl: string
+  repo?: string
+  repoId?: number
+  webUrl?: string
   projectType?: ProjectType
   description?: string
   tag?: string
