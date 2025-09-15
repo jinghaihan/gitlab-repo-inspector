@@ -1,4 +1,5 @@
 import type { ConfigOptions, GitlabRepo, Inspector, InspectResult, RangeMode, Spinner } from '../types'
+import process from 'node:process'
 import * as p from '@clack/prompts'
 import c from 'ansis'
 import { getRepos, getRepoTags } from '../gitlab'
@@ -29,6 +30,11 @@ async function inspectMonorepo(spinner: Spinner, options: ConfigOptions, repo: G
 export async function inspectManifest(options: ConfigOptions) {
   const data: InspectResult[] = []
   const repos = await getRepos(options)
+  if (!repos.length) {
+    p.log.error('No repositories found')
+    p.outro('aborting...')
+    process.exit(1)
+  }
 
   for (const repo of repos) {
     const spinner = p.spinner()

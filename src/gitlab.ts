@@ -1,4 +1,6 @@
 import type { ConfigOptions, GitlabGroup, GitlabRepo, GitlabRepoTag, GitlabRepoTree } from './types'
+import process from 'node:process'
+import * as p from '@clack/prompts'
 import axios from 'axios'
 import { createPreReleaseFilter, createRepoFilter } from './filter'
 import { baseURL, retry } from './utils'
@@ -19,15 +21,31 @@ export async function getGroups(options: ConfigOptions): Promise<GitlabGroup | u
       },
     )
 
-    return data.find(i => i.name === group)
+    const i = data.find(i => i.name === group)
+    if (!i && data.length) {
+      p.log.error(`Group ${group} not found`)
+      const result = await p.select({
+        message: `Group ${group} not found, select one of the following groups`,
+        options: data.map(i => ({
+          label: i.name,
+          value: i,
+        })),
+      })
+      if (p.isCancel(result)) {
+        p.outro('aborting...')
+        process.exit(1)
+      }
+      return result
+    }
+    return i
   })
 }
 
 export async function getRepos(options: ConfigOptions): Promise<GitlabRepo[]> {
-  const { token, group, subgroups } = options
+  const { token, subgroups } = options
   const gitlabGroup = await getGroups(options)
   if (!gitlabGroup) {
-    throw new Error(`Group ${group} not found`)
+    return []
   }
 
   const filter = createRepoFilter(options)
