@@ -66,7 +66,7 @@ export async function getRepos(options: ConfigOptions): Promise<GitlabRepo[]> {
   }) ?? []
 }
 
-export async function getRepoTags(options: ConfigOptions, repo: GitlabRepo) {
+export async function getRepoTags(options: ConfigOptions, repo: Pick<GitlabRepo, 'id'>) {
   const { token } = options
   const filter = createPreReleaseFilter(options)
   return await retry(async () => {

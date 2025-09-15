@@ -37,37 +37,53 @@ export async function inspectManifest(options: ConfigOptions) {
   }
 
   for (const repo of repos) {
-    const spinner = p.spinner()
-    spinner.start(`Inspecting ${c.yellow(repo.name)}...`)
-
-    const tags = await getRepoTags(options, repo)
-    const latestTag = getLatestTag(tags)
-    if (!latestTag) {
-      p.log.warn(`${c.yellow(repo.name)} has no tags`)
+    const result = await inspectRepo(options, repo)
+    if (result) {
+      data.push(...result)
     }
-
-    const setRepo = () => {
-      data.push({
-        name: repo.name,
-        repo: normalizeRepo(repo.web_url),
-        description: repo.description ?? '',
-        tag: normalizeTag(latestTag?.name),
-      })
-    }
-
-    if (options.monorepo) {
-      spinner.message('Inspecting monorepo...')
-      const pkgs = await inspectMonorepo(spinner, options, repo, latestTag?.name)
-      if (pkgs?.length)
-        data.push(...pkgs)
-      else
-        setRepo()
-    }
-    else {
-      setRepo()
-    }
-    spinner.stop(`Inspected ${c.yellow(repo.name)}`)
   }
 
   return data.sort((a, b) => a.name.localeCompare(b.name))
+}
+
+export async function inspectRepo(options: ConfigOptions, repo: GitlabRepo) {
+  const data: InspectResult[] = []
+
+  const spinner = p.spinner()
+  spinner.start(`Inspecting ${c.yellow(repo.name)}...`)
+
+  const latestTag = await inspectRepoTag(options, repo)
+  const setRepo = () => {
+    data.push({
+      name: repo.name,
+      repo: normalizeRepo(repo.web_url),
+      repoId: repo.id,
+      description: repo.description ?? '',
+      tag: normalizeTag(latestTag?.name),
+    })
+  }
+
+  if (options.monorepo) {
+    spinner.message('Inspecting monorepo...')
+    const pkgs = await inspectMonorepo(spinner, options, repo, latestTag?.name)
+    if (pkgs?.length)
+      data.push(...pkgs)
+    else
+      setRepo()
+  }
+  else {
+    setRepo()
+  }
+  spinner.stop(`Inspected ${c.yellow(repo.name)}`)
+
+  return data
+}
+
+export async function inspectRepoTag(options: ConfigOptions, repo: Pick<GitlabRepo, 'id' | 'name'>) {
+  const tags = await getRepoTags(options, repo)
+  const latestTag = getLatestTag(tags)
+  if (!latestTag) {
+    p.log.warn(`${c.yellow(repo.name)} has no tags`)
+  }
+  return latestTag
 }
