@@ -1,4 +1,4 @@
-import type { ConfigOptions } from './types'
+import type { ConfigOptions, GitlabRepoTag } from './types'
 
 export function baseURL(options: ConfigOptions) {
   const { registry, apiVersion } = options
@@ -27,4 +27,8 @@ export function normalizeTag(tag?: string) {
 
 export function normalizeRepo(repo: string) {
   return repo.endsWith('/') ? repo.slice(0, -1) : repo
+}
+
+export function getLatestTag(tags: GitlabRepoTag[]) {
+  return tags.sort((a, b) => new Date(b.commit.committed_date).getTime() - new Date(a.commit.committed_date).getTime())[0]
 }

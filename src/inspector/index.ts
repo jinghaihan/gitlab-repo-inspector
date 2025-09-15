@@ -2,7 +2,7 @@ import type { ConfigOptions, GitlabRepo, Inspector, InspectResult, RangeMode, Sp
 import * as p from '@clack/prompts'
 import c from 'ansis'
 import { getRepos, getRepoTags } from '../gitlab'
-import { normalizeRepo, normalizeTag } from '../utils'
+import { getLatestTag, normalizeRepo, normalizeTag } from '../utils'
 import { inspectMavenMonorepo } from './maven'
 import { inspectPnpmMonorepo } from './pnpm'
 
@@ -35,7 +35,7 @@ export async function inspectManifest(options: ConfigOptions) {
     spinner.start(`Inspecting ${c.yellow(repo.name)}...`)
 
     const tags = await getRepoTags(options, repo)
-    const latestTag = tags.sort((a, b) => new Date(b.commit.committed_date).getTime() - new Date(a.commit.committed_date).getTime())[0]
+    const latestTag = getLatestTag(tags)
     if (!latestTag) {
       p.log.warn(`${c.yellow(repo.name)} has no tags`)
     }

@@ -36,6 +36,7 @@ export async function inspectPnpmMonorepo(spinner: Spinner, options: ConfigOptio
       pkgs.push({
         name: data.name,
         repo: normalizeRepo(`${repo.web_url}/${dir}`),
+        projectType: 'pnpm',
         description: data.description,
         tag: normalizeTag(tag),
       })

@@ -56,6 +56,7 @@ export async function inspectMavenMonorepo(spinner: Spinner, options: ConfigOpti
       pkgs.push({
         name: project.artifactId,
         repo: normalizeRepo(`${repo.web_url}/${dir}`),
+        projectType: 'maven',
         description: project.description || project.name,
         tag: normalizeTag(tag),
       })

@@ -42,6 +42,7 @@ The tool generates a `gitlab-repo-inspector.json` file with the following struct
   {
     "name": "repository-name",
     "repo": "https://gitlab.com/group/repository",
+    "projectType": "pnpm",
     "description": "Repository description",
     "tag": "v1.0.0"
   }
