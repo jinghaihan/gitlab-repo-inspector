@@ -1,10 +1,12 @@
 import type { CAC } from 'cac'
 import type { CommandOptions, RangeMode } from './types'
-import { writeFile } from 'node:fs/promises'
+import { existsSync } from 'node:fs'
+import { readFile, writeFile } from 'node:fs/promises'
 import process from 'node:process'
 import * as p from '@clack/prompts'
 import c from 'ansis'
 import { cac } from 'cac'
+import { join } from 'pathe'
 import { name, version } from '../package.json'
 import { resolveConfig } from './config'
 import { MODE_CHOICES } from './constants'
@@ -30,6 +32,8 @@ try {
     .option('--ignore-repos <repos>', 'Ignore repositories')
     .option('--ignore-packages <packages>', 'Ignore packages')
     .option('--ignore-patterns <patterns>', 'Ignore monorepo patterns')
+    .option('--json <json>', 'Output json file')
+    .option('--merge', 'Merge json file')
     .action(async (mode: RangeMode, options: CommandOptions) => {
       if (mode) {
         if (!MODE_CHOICES.includes(mode)) {
@@ -43,7 +47,17 @@ try {
       const config = await resolveConfig(options)
       const inspector = inspectors[config.mode]
       const result = await inspector(config)
-      await writeFile('gitlab-repo-inspector.json', JSON.stringify(result, null, 2))
+
+      const path = join(config.cwd, config.json)
+      if (config.merge) {
+        if (existsSync(path)) {
+          const content = await readFile(path, 'utf-8')
+          const data = JSON.parse(content)
+          result.push(...data)
+        }
+      }
+
+      await writeFile(path, JSON.stringify(result, null, 2))
       p.outro(`${c.green`Inspect completed, saved to ${c.yellow`gitlab-repo-inspector.json`}`}`)
     })
 

@@ -16,4 +16,6 @@ export const DEFAULT_CONFIG_OPTIONS = {
     'playground',
     'playground/*',
   ],
+  json: 'gitlab-repo-inspector.json',
+  merge: false,
 }

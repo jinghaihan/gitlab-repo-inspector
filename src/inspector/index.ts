@@ -4,6 +4,7 @@ import * as p from '@clack/prompts'
 import c from 'ansis'
 import { getRepos, getRepoTags } from '../gitlab'
 import { getLatestTag, normalizeRepo, normalizeVersion } from '../utils'
+import { inferenceProjectType } from './inference'
 import { inspectMavenMonorepo } from './maven'
 import { inspectPnpmMonorepo } from './pnpm'
 
@@ -53,12 +54,14 @@ export async function inspectRepo(options: ConfigOptions, repo: GitlabRepo) {
   spinner.start(`Inspecting ${c.yellow(repo.name)}...`)
 
   const latestTag = await inspectRepoTag(options, repo)
-  const setRepo = () => {
+  const setRepo = async () => {
+    const projectType = await inferenceProjectType(spinner, options, repo, latestTag?.name)
     data.push({
       name: repo.name,
       repo: normalizeRepo(repo.web_url),
       repoId: repo.id,
       webUrl: repo.web_url,
+      projectType,
       description: repo.description ?? '',
       tag: latestTag?.name,
       version: normalizeVersion(latestTag?.name),

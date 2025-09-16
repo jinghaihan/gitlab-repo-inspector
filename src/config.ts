@@ -13,7 +13,7 @@ function normalizeConfig(options: Partial<CommandOptions>) {
   return options
 }
 
-export async function resolveConfig(options: Partial<CommandOptions>): Promise<ConfigOptions> {
+export async function resolveCommonConfig(options: Partial<CommandOptions>): Promise<ConfigOptions> {
   const defaults = structuredClone(DEFAULT_CONFIG_OPTIONS)
   const config = normalizeConfig(options)
 
@@ -28,27 +28,7 @@ export async function resolveConfig(options: Partial<CommandOptions>): Promise<C
   const configOptions = generator.sources.length ? normalizeConfig(generator.config) : {}
   const merged = { ...defaults, ...configOptions, ...config }
 
-  if (!merged.token) {
-    const token = await p.text({
-      message: 'Enter your Gitlab token:',
-    })
-    if (p.isCancel(token) || !token) {
-      p.outro(c.red('Gitlab token is required'))
-      process.exit(1)
-    }
-    merged.token = token
-  }
-
-  if (!merged.group) {
-    const group = await p.text({
-      message: 'Enter your Gitlab group:',
-    })
-    if (p.isCancel(group) || !group) {
-      p.outro(c.red('Gitlab group is required'))
-      process.exit(1)
-    }
-    merged.group = group
-  }
+  merged.cwd = merged.cwd || process.cwd()
 
   // default to manifest mode
   if (!merged.mode) {
@@ -63,5 +43,37 @@ export async function resolveConfig(options: Partial<CommandOptions>): Promise<C
   if (typeof merged.ignorePackages === 'string')
     merged.ignorePackages = [merged.ignorePackages]
 
+  // normalize json file
+  if (!merged.json.endsWith('.json'))
+    merged.json = `${merged.json}.json`
+
   return merged as unknown as ConfigOptions
+}
+
+export async function resolveConfig(options: Partial<CommandOptions>): Promise<ConfigOptions> {
+  const commonConfig = await resolveCommonConfig(options)
+
+  if (!commonConfig.token) {
+    const token = await p.text({
+      message: 'Enter your Gitlab token:',
+    })
+    if (p.isCancel(token) || !token) {
+      p.outro(c.red('Gitlab token is required'))
+      process.exit(1)
+    }
+    commonConfig.token = token
+  }
+
+  if (!commonConfig.group) {
+    const group = await p.text({
+      message: 'Enter your Gitlab group:',
+    })
+    if (p.isCancel(group) || !group) {
+      p.outro(c.red('Gitlab group is required'))
+      process.exit(1)
+    }
+    commonConfig.group = group
+  }
+
+  return commonConfig as unknown as ConfigOptions
 }

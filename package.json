@@ -1,7 +1,7 @@
 {
   "name": "gitlab-repo-inspector",
   "type": "module",
-  "version": "0.0.6",
+  "version": "0.1.0",
   "packageManager": "pnpm@10.15.1",
   "description": "A tool to scan GitLab groups and subgroups, list all repositories, detect monorepos, and fetch the latest tags or releases.",
   "author": "jinghaihan",
@@ -55,6 +55,7 @@
     "axios": "catalog:network",
     "cac": "catalog:node",
     "fast-xml-parser": "catalog:parser",
+    "pathe": "catalog:node",
     "semver": "catalog:utils",
     "unconfig": "catalog:node",
     "yaml": "catalog:parser"

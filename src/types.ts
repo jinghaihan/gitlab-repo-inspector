@@ -10,7 +10,7 @@ export interface Spinner {
   message: (msg?: string) => void
 }
 
-export type ProjectType = 'pnpm' | 'maven'
+export type ProjectType = 'pnpm' | 'maven' | 'npm' | 'yarn'
 
 export interface CommandOptions {
   mode?: RangeMode
@@ -29,6 +29,8 @@ export interface CommandOptions {
   ignoreRepos?: string[]
   ignorePackages?: string[]
   ignorePatterns?: string[]
+  json?: string
+  merge?: boolean
 }
 
 export type ConfigOptions = Required<CommandOptions>

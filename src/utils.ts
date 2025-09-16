@@ -1,4 +1,7 @@
 import type { ConfigOptions, GitlabRepoTag } from './types'
+import process from 'node:process'
+import * as p from '@clack/prompts'
+import c from 'ansis'
 
 export function baseURL(options: ConfigOptions) {
   const { registry, apiVersion } = options
@@ -11,7 +14,13 @@ export async function retry<T>(fn: () => Promise<T>, maxAttempts: number = 10, d
     try {
       return await fn()
     }
-    catch {
+    catch (error: unknown) {
+      if (error instanceof Error) {
+        if (error.message.includes('401')) {
+          p.outro(`${c.red('401')}: please check your token or registry`)
+          process.exit(1)
+        }
+      }
       attempts++
       await new Promise(resolve => setTimeout(resolve, delay))
     }
