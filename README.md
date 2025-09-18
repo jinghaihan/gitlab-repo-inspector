@@ -7,7 +7,34 @@
 A tool to scan GitLab groups and subgroups, list all repositories, detect monorepos, and fetch the latest tags or releases.
 
 ```bash
-npx gitlab-repo-inspector [options]
+npx gitlab-repo-inspector [mode] [options]
+```
+
+### Command Line Options
+
+```bash
+# Basic usage
+npx gitlab-repo-inspector --token <token> --group <group>
+
+# With additional options
+npx gitlab-repo-inspector manifest \
+  --cwd /path/to/project \
+  --registry https://gitlab.example.com \
+  --api-version v4 \
+  --project-type pnpm \
+  --token <token> \
+  --per-page 100 \
+  --group <group> \
+  --subgroups \
+  --archived \
+  --monorepo \
+  --pre-release \
+  --ignore-groups "legacy,deprecated" \
+  --ignore-repos "old-repo,test-repo" \
+  --ignore-packages "internal-pkg" \
+  --ignore-patterns "playground,examples/*" \
+  --json output.json \
+  --merge
 ```
 
 <p align='center'>
@@ -42,30 +69,44 @@ Create a `gitlab-repo-inspector.config.ts` file to customize default settings:
 import { defineConfig } from 'gitlab-repo-inspector'
 
 export default defineConfig({
+  cwd: process.cwd(),
   registry: 'https://gitlab.com',
+  apiVersion: 'v4',
+  projectType: 'pnpm',
   token: 'access-token',
+  perPage: 500,
   group: 'gitlab-group',
   subgroups: true,
+  archived: false,
   monorepo: true,
   preRelease: false,
   ignoreGroups: ['legacy'],
   ignoreRepos: ['decrypted-repo'],
   ignorePackages: ['internal-packages'],
-  ignorePatterns: ['playground', 'examples/*']
+  ignorePatterns: ['playground', 'examples/*'],
+  json: 'gitlab-repo-inspector.json',
+  merge: false
 })
 ```
 
 **Configuration Options:**
+- `cwd`: Current working directory
 - `registry`: GitLab instance URL
+- `apiVersion`: API version (default: 'v4')
+- `projectType`: Project type ('pnpm' or 'maven')
 - `token`: GitLab access token
+- `perPage`: Number of repositories per page (default: 500)
 - `group`: Default group to scan
-- `subgroups`: Include subgroups in scan
-- `monorepo`: Enable monorepo detection
-- `preRelease`: Include pre-release versions
+- `subgroups`: Include subgroups in scan (default: true)
+- `archived`: Include archived repositories (default: false)
+- `monorepo`: Enable monorepo detection (default: true)
+- `preRelease`: Include pre-release versions (default: true)
 - `ignoreGroups`: Array of group names to ignore
 - `ignoreRepos`: Array of repository names to ignore
 - `ignorePackages`: Array of package names to ignore
 - `ignorePatterns`: Array of monorepo patterns to ignore
+- `json`: Output JSON file name (default: 'gitlab-repo-inspector.json')
+- `merge`: Merge with existing JSON file (default: false)
 
 ## Authentication
 

@@ -29,7 +29,7 @@ catalogs:
   tsc:
     typescript: ^5.9.2
   types:
-    '@types/node': ^24.4.0
+    '@types/node': ^24.5.2
     '@types/semver': ^7.7.1
   utils:
     semver: ^7.7.2

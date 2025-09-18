@@ -58,7 +58,7 @@ try {
       }
 
       await writeFile(path, JSON.stringify(result, null, 2))
-      p.outro(`${c.green`Inspect completed, saved to ${c.yellow`gitlab-repo-inspector.json`}`}`)
+      p.outro(`${c.green`Inspect completed, saved to ${c.yellow`${options.json}`}`}`)
     })
 
   cli.help()
