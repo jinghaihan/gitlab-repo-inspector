@@ -10,33 +10,6 @@ A tool to scan GitLab groups and subgroups, list all repositories, detect monore
 npx gitlab-repo-inspector [mode] [options]
 ```
 
-### Command Line Options
-
-```bash
-# Basic usage
-npx gitlab-repo-inspector --token <token> --group <group>
-
-# With additional options
-npx gitlab-repo-inspector manifest \
-  --cwd /path/to/project \
-  --registry https://gitlab.example.com \
-  --api-version v4 \
-  --project-type pnpm \
-  --token <token> \
-  --per-page 100 \
-  --group <group> \
-  --subgroups \
-  --archived \
-  --monorepo \
-  --pre-release \
-  --ignore-groups "legacy,deprecated" \
-  --ignore-repos "old-repo,test-repo" \
-  --ignore-packages "internal-pkg" \
-  --ignore-patterns "playground,examples/*" \
-  --json output.json \
-  --merge
-```
-
 <p align='center'>
 <img src='./assets/help.png' />
 </p>
